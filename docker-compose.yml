@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3021:3021"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=file:./database.sqlite3
+      - CORS_ORIGIN=http://localhost:5173
+      # Add your Ghost CMS credentials here:
+      # - GHOST_API_URL=https://your-ghost-blog.com
+      # - GHOST_CONTENT_KEY=your_key
+    volumes:
+      - data-volume:/app/apps/api
+    restart: unless-stopped
+
+volumes:
+  data-volume:

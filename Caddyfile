@@ -1,0 +1,3 @@
+ta-portflio.colmmoore.com {
+    reverse_proxy app:3021
+}

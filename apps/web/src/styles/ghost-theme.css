@@ -1,0 +1,207 @@
+/* Ghost Companion Collections - Cinematic Design System */
+
+:root {
+  /* Backgrounds */
+  --bg-base: #000000;
+  --bg-primary: #050505;
+  --bg-secondary: #0A0A0A;
+  --bg-tertiary: #121212;
+  --bg-overlay: rgba(0, 0, 0, 0.85);
+
+  /* Borders */
+  --border-subtle: rgba(234, 228, 221, 0.08);
+  /* EAE4DD at 8% */
+  --border-medium: rgba(234, 228, 221, 0.15);
+  --border-active: rgba(234, 228, 221, 0.30);
+
+  /* Text */
+  --text-primary: #EAE4DD;
+  --text-secondary: rgba(234, 228, 221, 0.70);
+  --text-tertiary: rgba(234, 228, 221, 0.45);
+  --text-inverse: #000000;
+
+  /* Accents */
+  --accent-brand: #D86001;
+  --accent-primary: #EAE4DD;
+  --accent-hover: rgba(234, 228, 221, 0.10);
+  --accent-glow: rgba(216, 96, 1, 0.25);
+  /* D86001 glow */
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+  --space-40: 160px;
+
+  /* Border Radius */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Animation */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+  --duration-slowest: 700ms;
+
+  /* Shadows */
+  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-overlay: 0 24px 80px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-glow: 0 0 16px rgba(255, 255, 255, 0.1);
+
+  /* Typography */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 48px;
+  --text-4xl: 72px;
+
+  --line-xs: 18px;
+  --line-sm: 22px;
+  --line-base: 26px;
+  --line-lg: 30px;
+  --line-xl: 34px;
+  --line-2xl: 42px;
+  --line-3xl: 54px;
+  --line-4xl: 78px;
+}
+
+/* Base Styles */
+body {
+  background-color: var(--bg-base);
+  background-image:
+    radial-gradient(circle at top center, rgba(255, 255, 255, 0.03) 0%, transparent 70%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: 'Outfit', 'Tenon', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility Classes */
+.cinematic-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--space-20);
+}
+
+@media (max-width: 1024px) {
+  .cinematic-container {
+    padding: 0 var(--space-12);
+  }
+}
+
+@media (max-width: 768px) {
+  .cinematic-container {
+    padding: 0 var(--space-6);
+  }
+
+  :root {
+    --text-2xl: 24px;
+    --text-3xl: 36px;
+    --text-4xl: 48px;
+    --line-2xl: 32px;
+    --line-3xl: 40px;
+    --line-4xl: 52px;
+  }
+}
+
+.content-width {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Selection */
+::selection {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+}
+
+/* FORCE GHOST GALLERY SIDE-BY-SIDE */
+.ghost-content .kg-gallery-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  margin: 1.5rem 0 !important;
+  width: 100% !important;
+}
+
+.ghost-content .kg-gallery-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+  width: 100% !important;
+}
+
+.ghost-content .kg-gallery-row {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 1.5rem !important;
+  width: 100% !important;
+}
+
+.ghost-content .kg-gallery-image {
+  flex: 1 1 0% !important;
+  width: calc(50% - 0.75rem) !important;
+  margin: 0 !important;
+}
+
+.ghost-content .kg-gallery-image img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-medium) !important;
+  margin: 0 !important;
+}
+
+.ghost-content .kg-gallery-card figcaption {
+  display: none !important;
+  /* Hide captions for now to avoid layout breaks */
+}
