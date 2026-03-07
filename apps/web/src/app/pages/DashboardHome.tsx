@@ -105,7 +105,7 @@ export default function DashboardHome() {
             )}
           </div>
           <Button
-            onClick={() => navigate('/admin/collections/new')}
+            onClick={() => navigate('/dashboard/collections/new')}
             className="!bg-[var(--accent-brand)] !text-white hover:opacity-90"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -122,7 +122,7 @@ export default function DashboardHome() {
               No collections yet. Create your first one.
             </p>
             <Button
-              onClick={() => navigate('/admin/collections/new')}
+              onClick={() => navigate('/dashboard/collections/new')}
               className="!bg-[var(--accent-brand)] !text-white hover:opacity-90"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -240,7 +240,7 @@ export default function DashboardHome() {
 
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={() => navigate(`/admin/collections/${collection.id}/edit`)}
+                            onClick={() => navigate(`/dashboard/collections/${collection.id}/edit`)}
                             className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-full transition-all"
                             title="Edit"
                           >
@@ -319,7 +319,7 @@ export default function DashboardHome() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/admin/collections/${collection.id}/edit`);
+                            navigate(`/dashboard/collections/${collection.id}/edit`);
                           }}
                           className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-full transition-all"
                           title="Edit"

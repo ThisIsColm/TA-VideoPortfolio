@@ -93,7 +93,7 @@ export interface CollectionItem {
 }
 
 export async function fetchCollections(): Promise<{ collections: CollectionSummary[] }> {
-    const data = await request<{ collections: any[] }>('/admin/collections');
+    const data = await request<{ collections: any[] }>('/dashboard/collections');
     return {
         collections: data.collections.map(c => ({
             ...c,
@@ -104,7 +104,7 @@ export async function fetchCollections(): Promise<{ collections: CollectionSumma
 }
 
 export async function fetchCollection(id: string): Promise<{ collection: CollectionDetail }> {
-    const data = await request<{ collection: any }>(`/admin/collections/${id}`);
+    const data = await request<{ collection: any }>(`/dashboard/collections/${id}`);
     if (data.collection) {
         data.collection.createdAt = data.collection.createdAt || data.collection.created_at;
         data.collection.updatedAt = data.collection.updatedAt || data.collection.updated_at;
@@ -119,7 +119,7 @@ export async function createCollection(data: {
     intro?: string;
     password?: string;
 }) {
-    return request<{ collection: any }>('/admin/collections', {
+    return request<{ collection: any }>('/dashboard/collections', {
         method: 'POST',
         body: JSON.stringify(data),
     });
@@ -132,32 +132,32 @@ export async function updateCollection(id: string, data: {
     password?: string;
     heroItemId?: string | null;
 }) {
-    return request<{ collection: any }>(`/admin/collections/${id}`, {
+    return request<{ collection: any }>(`/dashboard/collections/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
     });
 }
 
 export async function deleteCollection(id: string) {
-    return request<{ ok: boolean }>(`/admin/collections/${id}`, { method: 'DELETE' });
+    return request<{ ok: boolean }>(`/dashboard/collections/${id}`, { method: 'DELETE' });
 }
 
 export async function addCollectionItem(collectionId: string, ghostPostId: string, ghostSlug: string) {
-    return request<{ item: CollectionItem }>(`/admin/collections/${collectionId}/items`, {
+    return request<{ item: CollectionItem }>(`/dashboard/collections/${collectionId}/items`, {
         method: 'POST',
         body: JSON.stringify({ ghostPostId, ghostSlug }),
     });
 }
 
 export async function reorderCollectionItems(collectionId: string, itemIds: string[]) {
-    return request<{ ok: boolean }>(`/admin/collections/${collectionId}/items/reorder`, {
+    return request<{ ok: boolean }>(`/dashboard/collections/${collectionId}/items/reorder`, {
         method: 'PATCH',
         body: JSON.stringify({ itemIds }),
     });
 }
 
 export async function removeCollectionItem(collectionId: string, itemId: string) {
-    return request<{ ok: boolean }>(`/admin/collections/${collectionId}/items/${itemId}`, {
+    return request<{ ok: boolean }>(`/dashboard/collections/${collectionId}/items/${itemId}`, {
         method: 'DELETE',
     });
 }

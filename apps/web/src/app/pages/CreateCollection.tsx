@@ -96,7 +96,7 @@ export default function CreateCollection() {
       }
 
       await refreshCollections();
-      navigate('/admin');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to create collection');
     } finally {
@@ -110,7 +110,7 @@ export default function CreateCollection() {
         {/* Header Bar */}
         <div className="sticky top-0 z-50 bg-[var(--bg-primary)] border-b border-[var(--border-subtle)] px-6 md:px-12 lg:px-16 py-6">
           <div className="flex items-center gap-4 mb-6">
-            <Button variant="ghost" onClick={() => navigate('/admin')} className="-ml-4">
+            <Button variant="ghost" onClick={() => navigate('/dashboard')} className="-ml-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
@@ -288,7 +288,7 @@ export default function CreateCollection() {
           <Button type="submit" disabled={saving || selectedPostIds.size === 0}>
             {saving ? 'Creating...' : 'Create Collection'}
           </Button>
-          <Button type="button" variant="secondary" onClick={() => navigate('/admin')}>
+          <Button type="button" variant="secondary" onClick={() => navigate('/dashboard')}>
             Cancel
           </Button>
         </div>

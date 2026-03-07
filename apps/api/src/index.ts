@@ -30,7 +30,7 @@ app.use(cors({
 }));
 
 // Routes
-app.use('/api/admin', adminRoutes);
+app.use('/api/dashboard', adminRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/ghost', ghostRoutes);
 

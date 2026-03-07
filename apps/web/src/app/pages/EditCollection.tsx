@@ -352,7 +352,7 @@ export default function EditCollection() {
       });
       await refreshCollections();
       toast.success('Collection saved');
-      navigate('/admin');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to save changes');
     } finally {
@@ -446,7 +446,7 @@ export default function EditCollection() {
   }
 
   if (!collection) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
@@ -457,7 +457,7 @@ export default function EditCollection() {
           <div>
             <Button
               variant="ghost"
-              onClick={() => navigate('/admin')}
+              onClick={() => navigate('/dashboard')}
               className="mb-6 -ml-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
