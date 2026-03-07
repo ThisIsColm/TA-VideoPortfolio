@@ -11,12 +11,14 @@ exports.fetchGhostPosts = fetchGhostPosts;
 exports.fetchGhostPost = fetchGhostPost;
 // ghost.ts
 const sanitize_html_1 = __importDefault(require("sanitize-html"));
-const GHOST_API_URL = process.env.GHOST_API_URL || '';
-const GHOST_CONTENT_KEY = process.env.GHOST_CONTENT_KEY || '';
 function ghostUrl(path, params = {}) {
-    const base = GHOST_API_URL.replace(/\/$/, '');
+    const apiUrl = process.env.GHOST_API_URL || '';
+    const contentKey = process.env.GHOST_CONTENT_KEY || '';
+    if (!apiUrl)
+        throw new Error('GHOST_API_URL is missing');
+    const base = apiUrl.replace(/\/$/, '');
     const url = new URL(`${base}/ghost/api/content/${path}`);
-    url.searchParams.set('key', GHOST_CONTENT_KEY);
+    url.searchParams.set('key', contentKey);
     for (const [k, v] of Object.entries(params)) {
         if (v)
             url.searchParams.set(k, v);
@@ -55,17 +57,44 @@ function sanitizeGhostHtml(html) {
             a: ['href', 'target', 'rel', 'title'],
             figure: ['class'],
             figcaption: ['class'],
+            div: ['class'],
         },
         allowedIframeHostnames: ['player.vimeo.com'],
         allowedSchemes: ['http', 'https', 'mailto'],
     });
 }
-function transformPost(post) {
+const vimeoCache = new Map();
+async function fetchVimeoMetadata(vimeoId) {
+    if (vimeoCache.has(vimeoId))
+        return vimeoCache.get(vimeoId);
+    try {
+        console.log(`Fetching Vimeo oEmbed for: ${vimeoId}`);
+        const res = await fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${vimeoId}`);
+        if (res.ok) {
+            const data = await res.json();
+            const meta = { width: data.width, height: data.height };
+            vimeoCache.set(vimeoId, meta);
+            return meta;
+        }
+    }
+    catch (err) {
+        console.error(`Failed to fetch Vimeo metadata for ${vimeoId}:`, err);
+    }
+    return {};
+}
+async function transformPost(post) {
     const vimeoId = extractVimeoId(post.html);
     const stills = extractImages(post.html);
     const year = post.published_at ? new Date(post.published_at).getFullYear().toString() : '';
     const tags = (post.tags || []).map(t => t.name);
     let description = post.custom_excerpt || post.excerpt || post.plaintext || '';
+    let vimeoWidth;
+    let vimeoHeight;
+    if (vimeoId) {
+        const meta = await fetchVimeoMetadata(vimeoId);
+        vimeoWidth = meta.width;
+        vimeoHeight = meta.height;
+    }
     return {
         id: post.id,
         title: post.title,
@@ -79,22 +108,27 @@ function transformPost(post) {
         description,
         html: post.html ? sanitizeGhostHtml(post.html) : '',
         stills,
+        vimeoWidth,
+        vimeoHeight,
     };
 }
-async function fetchGhostPosts(page = 1, limit = 50, search = '', tag = '') {
-    if (!GHOST_API_URL || !GHOST_CONTENT_KEY) {
+async function fetchGhostPosts(page = 1, limit = 50, search = '', tag = '', slugs = []) {
+    if (!process.env.GHOST_API_URL || !process.env.GHOST_CONTENT_KEY) {
         return { posts: [], meta: { page: 1, pages: 0, total: 0 } };
     }
-    let filter = '';
+    let filters = [];
     if (tag) {
-        filter = `tag:${tag}`;
+        filters.push(`tag:${tag}`);
+    }
+    if (slugs.length > 0) {
+        filters.push(`slug:[${slugs.join(',')}]`);
     }
     const url = ghostUrl('posts/', {
         include: 'tags',
         limit: String(limit),
         page: String(page),
         fields: 'id,title,slug,feature_image,custom_excerpt,excerpt,plaintext,html,published_at',
-        filter: filter,
+        filter: filters.join('+'),
     });
     const res = await fetch(url);
     if (!res.ok) {
@@ -108,12 +142,12 @@ async function fetchGhostPosts(page = 1, limit = 50, search = '', tag = '') {
         postsRaw = postsRaw.filter(p => p.title.toLowerCase().includes(s) ||
             (p.custom_excerpt || '').toLowerCase().includes(s));
     }
-    const posts = postsRaw.map(transformPost);
+    const posts = await Promise.all(postsRaw.map(transformPost));
     const meta = data.meta?.pagination || { page: 1, pages: 0, total: 0 };
     return { posts, meta: { page: meta.page, pages: meta.pages, total: meta.total } };
 }
 async function fetchGhostPost(slug) {
-    if (!GHOST_API_URL || !GHOST_CONTENT_KEY) {
+    if (!process.env.GHOST_API_URL || !process.env.GHOST_CONTENT_KEY) {
         return null;
     }
     const url = ghostUrl(`posts/slug/${slug}/`, {
@@ -129,5 +163,5 @@ async function fetchGhostPost(slug) {
     const data = await res.json();
     if (!data.posts || data.posts.length === 0)
         return null;
-    return transformPost(data.posts[0]);
+    return await transformPost(data.posts[0]);
 }

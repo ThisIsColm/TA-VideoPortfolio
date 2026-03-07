@@ -2,8 +2,10 @@
   "name": "ghost-companion-root",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "install": "npm --prefix apps/api install && npm --prefix apps/web install",
     "dev": "npm run dev --prefix apps/api & npm run dev --prefix apps/web",
     "build": "npm run build --prefix apps/api && npm run build --prefix apps/web",
     "start": "npm run start --prefix apps/api"

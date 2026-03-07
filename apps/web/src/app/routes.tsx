@@ -17,7 +17,7 @@ export const router = createBrowserRouter([
     Component: CollectionPage,
   },
   {
-    path: '/admin',
+    path: '/dashboard',
     Component: DashboardLayout,
     children: [
       {
@@ -37,7 +37,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <Navigate to="/admin" replace />,
+    element: <Navigate to="/dashboard" replace />,
   },
   {
     path: '*',

@@ -26,12 +26,14 @@ export interface GhostPostTransformed {
     description: string;
     html: string;
     stills: string[];
+    vimeoWidth?: number;
+    vimeoHeight?: number;
 }
 export declare function extractVimeoId(html: string | null): string | null;
 export declare function extractImages(html: string | null): string[];
 export declare function sanitizeGhostHtml(html: string): string;
-export declare function transformPost(post: GhostPostRaw): GhostPostTransformed;
-export declare function fetchGhostPosts(page?: number, limit?: number, search?: string, tag?: string): Promise<{
+export declare function transformPost(post: GhostPostRaw): Promise<GhostPostTransformed>;
+export declare function fetchGhostPosts(page?: number, limit?: number, search?: string, tag?: string, slugs?: string[]): Promise<{
     posts: GhostPostTransformed[];
     meta: {
         page: number;

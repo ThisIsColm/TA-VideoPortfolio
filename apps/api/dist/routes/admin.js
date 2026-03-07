@@ -6,15 +6,39 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const db_1 = __importDefault(require("../lib/db"));
 const crypto_1 = __importDefault(require("crypto"));
+const ghost_1 = require("../lib/ghost");
 const router = (0, express_1.Router)();
 // GET /api/admin/collections
-router.get('/collections', (req, res) => {
+router.get('/collections', async (req, res) => {
     try {
         const collections = db_1.default.prepare('SELECT * FROM collections ORDER BY created_at DESC').all();
+        const allSlugs = new Set();
+        const collectionSlugMap = {};
         for (const c of collections) {
-            const items = db_1.default.prepare('SELECT count(*) as count FROM collection_items WHERE collection_id = ?')
+            const items = db_1.default.prepare('SELECT ghost_slug FROM collection_items WHERE collection_id = ? ORDER BY sort_order ASC LIMIT 4')
+                .all(c.id);
+            const slugs = items.map(i => i.ghost_slug);
+            collectionSlugMap[c.id] = slugs;
+            slugs.forEach(s => allSlugs.add(s));
+            // Also get total count
+            const countRow = db_1.default.prepare('SELECT count(*) as count FROM collection_items WHERE collection_id = ?')
                 .get(c.id);
-            c.itemCount = items.count;
+            c.itemCount = countRow.count;
+        }
+        // Fetch all thumbnails in one go
+        let thumbnailMap = {};
+        if (allSlugs.size > 0) {
+            const { posts } = await (0, ghost_1.fetchGhostPosts)(1, 200, '', '', Array.from(allSlugs));
+            posts.forEach(p => {
+                if (p.thumbnail)
+                    thumbnailMap[p.slug] = p.thumbnail;
+            });
+        }
+        // Map thumbnails back to collections
+        for (const c of collections) {
+            c.thumbnails = collectionSlugMap[c.id]
+                .map(slug => thumbnailMap[slug])
+                .filter(Boolean);
         }
         res.json({ collections });
     }
@@ -51,7 +75,7 @@ router.post('/collections', (req, res) => {
 // PATCH /api/admin/collections/:id
 router.patch('/collections/:id', (req, res) => {
     try {
-        const { title, slug, intro } = req.body;
+        const { title, slug, intro, heroItemId } = req.body;
         const id = req.params.id;
         const existing = db_1.default.prepare('SELECT id FROM collections WHERE id = ?').get(id);
         if (!existing) {
@@ -72,6 +96,10 @@ router.patch('/collections/:id', (req, res) => {
             updates.push('intro = ?');
             values.push(intro);
         }
+        if (heroItemId !== undefined) {
+            updates.push('hero_item_id = ?');
+            values.push(heroItemId);
+        }
         if (updates.length > 0) {
             updates.push('updated_at = CURRENT_TIMESTAMP');
             values.push(id);
@@ -87,6 +115,52 @@ router.patch('/collections/:id', (req, res) => {
             return;
         }
         console.error('Update collection error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+// GET /api/admin/collections/:id
+router.get('/collections/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const collection = db_1.default.prepare('SELECT * FROM collections WHERE id = ?').get(id);
+        if (!collection) {
+            res.status(404).json({ error: 'Collection not found' });
+            return;
+        }
+        const itemsQuery = db_1.default.prepare('SELECT * FROM collection_items WHERE collection_id = ? ORDER BY sort_order ASC')
+            .all(id);
+        const items = itemsQuery.map(i => ({
+            id: i.id,
+            ghostPostId: i.ghost_post_id,
+            ghostSlug: i.ghost_slug,
+            sortOrder: i.sort_order,
+            createdAt: i.created_at,
+        }));
+        res.json({
+            collection: {
+                ...collection,
+                items
+            }
+        });
+    }
+    catch (err) {
+        console.error('Get collection error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+// DELETE /api/admin/collections/:id
+router.delete('/collections/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = db_1.default.prepare('DELETE FROM collections WHERE id = ?').run(id);
+        if (result.changes === 0) {
+            res.status(404).json({ error: 'Collection not found' });
+            return;
+        }
+        res.json({ ok: true });
+    }
+    catch (err) {
+        console.error('Delete collection error:', err);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
