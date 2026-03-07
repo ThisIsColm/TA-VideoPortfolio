@@ -20,7 +20,11 @@ router.get('/collections/:slug', async (req, res) => {
             .all(collection.id);
         // Fetch Ghost posts for each item
         const posts = [];
+        let heroPostId = null;
         for (const item of items) {
+            if (item.id === collection.hero_item_id) {
+                heroPostId = item.ghost_post_id;
+            }
             try {
                 const post = await (0, ghost_1.fetchGhostPost)(item.ghost_slug);
                 if (post) {
@@ -38,6 +42,7 @@ router.get('/collections/:slug', async (req, res) => {
                 slug: collection.slug,
                 intro: collection.intro,
                 posts,
+                heroPostId,
             },
         });
     }
