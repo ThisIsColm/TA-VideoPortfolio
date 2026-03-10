@@ -43,15 +43,22 @@ export default function CollectionPage() {
       .finally(() => setLoading(false));
   }, [slug, collectionPassword]);
 
-  // Deep link: auto-open overlay for postSlug
+  // Deep link: auto-open overlay for postSlug OR if single video
   useEffect(() => {
-    if (postSlug && collection?.posts) {
-      const idx = collection.posts.findIndex(p => p.slug === postSlug);
-      if (idx >= 0) {
-        setSelectedIndex(idx);
+    if (collection?.posts) {
+      if (postSlug) {
+        const idx = collection.posts.findIndex(p => p.slug === postSlug);
+        if (idx >= 0) {
+          setSelectedIndex(idx);
+        }
+      } else if (collection.posts.length === 1) {
+        // Auto-open the only video
+        setSelectedIndex(0);
+        const post = collection.posts[0];
+        window.history.replaceState(null, '', `/p/${slug}/${post.slug}`);
       }
     }
-  }, [postSlug, collection]);
+  }, [postSlug, collection, slug]);
 
   // Handle browser back to close overlay
   useEffect(() => {

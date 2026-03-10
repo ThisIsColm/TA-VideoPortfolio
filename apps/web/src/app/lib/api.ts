@@ -72,6 +72,7 @@ export interface CollectionSummary {
     updatedAt: string;
     hasPassword?: boolean;
     heroItemId?: string;
+    firstPostSlug?: string | null;
 }
 
 export interface CollectionDetail {

@@ -32,8 +32,11 @@ export default function DashboardHome() {
     (collection.intro && collection.intro.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const copyLink = (slug: string) => {
-    const url = `https://portfolio.tinyark.com/p/${slug}`;
+  const copyLink = (slug: string, itemCount: number, firstPostSlug: string | null | undefined) => {
+    const isSingle = itemCount === 1 && firstPostSlug;
+    const url = isSingle
+      ? `https://portfolio.tinyark.com/p/${slug}/${firstPostSlug}`
+      : `https://portfolio.tinyark.com/p/${slug}`;
     navigator.clipboard.writeText(url);
     toast.success('Copied to clipboard', {
       duration: 2000,
@@ -153,7 +156,12 @@ export default function DashboardHome() {
                     {/* Thumbnail Mini-Gallery */}
                     <div
                       className="relative aspect-video bg-black overflow-hidden cursor-pointer"
-                      onClick={() => window.open(`/p/${collection.slug}`, '_blank')}
+                      onClick={() => {
+                        const url = (collection.itemCount === 1 && collection.firstPostSlug)
+                          ? `/p/${collection.slug}/${collection.firstPostSlug}`
+                          : `/p/${collection.slug}`;
+                        window.open(url, '_blank');
+                      }}
                     >
                       {!collection.thumbnails || collection.thumbnails.length === 0 ? (
                         <div className="absolute inset-0 flex items-center justify-center text-[var(--text-tertiary)] bg-[var(--bg-tertiary)] group-hover:bg-[var(--bg-secondary)] transition-colors duration-300">
@@ -197,7 +205,12 @@ export default function DashboardHome() {
                       <div className="flex-1 mb-6">
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div
-                            onClick={() => window.open(`/p/${collection.slug}`, '_blank')}
+                            onClick={() => {
+                              const url = (collection.itemCount === 1 && collection.firstPostSlug)
+                                ? `/p/${collection.slug}/${collection.firstPostSlug}`
+                                : `/p/${collection.slug}`;
+                              window.open(url, '_blank');
+                            }}
                             className="text-[17px] font-light text-[var(--text-primary)] group-hover:text-white hover:underline decoration-white/30 underline-offset-4 transition-colors line-clamp-1 cursor-pointer"
                           >
                             {collection.title}
@@ -217,14 +230,14 @@ export default function DashboardHome() {
                       <div
                         onClick={(e) => {
                           e.stopPropagation();
-                          copyLink(collection.slug);
+                          copyLink(collection.slug, collection.itemCount, collection.firstPostSlug);
                         }}
                         className="mb-4 p-3 bg-black/20 border border-white/5 rounded-lg flex items-center justify-between group/link cursor-pointer hover:bg-black/30 hover:border-white/10 transition-all active:scale-[0.98]"
                       >
                         <div className="flex items-center gap-2 overflow-hidden">
                           <Link2 className="w-3.5 h-3.5 text-[var(--text-tertiary)] group-hover/link:text-[var(--text-primary)] transition-colors" />
                           <span className="text-[11px] font-mono text-[var(--text-tertiary)] truncate group-hover/link:text-[var(--text-secondary)] transition-colors">
-                            portfolio.tinyark.com/p/{collection.slug}
+                            portfolio.tinyark.com/p/{collection.slug}{(collection.itemCount === 1 && collection.firstPostSlug) ? `/${collection.firstPostSlug}` : ''}
                           </span>
                         </div>
                         <span className="text-[9px] uppercase tracking-wider font-mono text-[var(--text-tertiary)] opacity-0 group-hover/link:opacity-100 transition-opacity">
@@ -269,7 +282,12 @@ export default function DashboardHome() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05, duration: 0.3 }}
                     key={collection.id}
-                    onClick={() => window.open(`/p/${collection.slug}`, '_blank')}
+                    onClick={() => {
+                      const url = (collection.itemCount === 1 && collection.firstPostSlug)
+                        ? `/p/${collection.slug}/${collection.firstPostSlug}`
+                        : `/p/${collection.slug}`;
+                      window.open(url, '_blank');
+                    }}
                     className="group flex flex-col md:flex-row md:items-center justify-between p-4 md:p-5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-[var(--radius-lg)] hover:border-[var(--border-active)] hover:bg-[var(--bg-tertiary)] transition-all cursor-pointer gap-4 md:gap-0"
                   >
                     {/* Left Side: Title & Info */}
@@ -307,7 +325,7 @@ export default function DashboardHome() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          copyLink(collection.slug);
+                          copyLink(collection.slug, collection.itemCount, collection.firstPostSlug);
                         }}
                         className="flex items-center gap-2 px-3 py-1.5 bg-black/20 border border-white/5 rounded-md hover:bg-black/30 hover:border-white/10 transition-all text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
                       >
