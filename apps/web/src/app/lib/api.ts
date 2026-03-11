@@ -70,7 +70,6 @@ export interface CollectionSummary {
     thumbnails: string[];
     createdAt: string;
     updatedAt: string;
-    hasPassword?: boolean;
     heroItemId?: string;
     firstPostSlug?: string | null;
 }
@@ -118,7 +117,6 @@ export async function createCollection(data: {
     title: string;
     slug: string;
     intro?: string;
-    password?: string;
 }) {
     return request<{ collection: any }>('/dashboard/collections', {
         method: 'POST',
@@ -130,7 +128,6 @@ export async function updateCollection(id: string, data: {
     title?: string;
     slug?: string;
     intro?: string;
-    password?: string;
     heroItemId?: string | null;
 }) {
     return request<{ collection: any }>(`/dashboard/collections/${id}`, {
@@ -171,16 +168,11 @@ export interface PublicCollection {
     slug: string;
     intro: string;
     posts?: GhostPost[];
-    requiresPassword?: boolean;
     heroPostId?: string;
 }
 
-export async function fetchPublicCollection(slug: string, password?: string) {
-    const headers: Record<string, string> = {};
-    if (password) {
-        headers['x-collection-password'] = password;
-    }
-    return request<{ collection: PublicCollection }>(`/public/collections/${slug}`, { headers });
+export async function fetchPublicCollection(slug: string) {
+    return request<{ collection: PublicCollection }>(`/public/collections/${slug}`);
 }
 
 export async function fetchPublicPost(collectionSlug: string, postSlug: string) {

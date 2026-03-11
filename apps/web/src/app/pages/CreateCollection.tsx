@@ -28,7 +28,6 @@ export default function CreateCollection() {
     title: '',
     slug: '',
     intro: '',
-    password: '',
   });
 
   const allTags = Array.from(new Set(ghostPosts.flatMap(p => p.tags)));
@@ -75,8 +74,7 @@ export default function CreateCollection() {
         title: formData.title,
         slug: formData.slug,
         intro: formData.intro,
-        password: formData.password || undefined,
-      } as any);
+      });
 
       // 2. Add Selected Videos
       const selectedPostsData = ghostPosts.filter(p => selectedPostIds.has(p.id));
@@ -265,23 +263,16 @@ export default function CreateCollection() {
           className="font-mono"
         />
 
-        <Textarea
-          label="Intro"
-          helperText="Optional introductory text for the collection page."
-          placeholder="A curated selection of our best work from the first quarter..."
-          value={formData.intro}
-          onChange={(e) => setFormData({ ...formData, intro: e.target.value })}
-          rows={3}
-        />
-
-        <Input
-          label="Password (Optional)"
-          type="password"
-          helperText="Leave empty for public collections."
-          placeholder="••••••••"
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-        />
+        {selectedPostIds.size > 1 && (
+          <Textarea
+            label="Intro"
+            helperText="Optional introductory text for the collection page."
+            placeholder="A curated selection of our best work from the first quarter..."
+            value={formData.intro}
+            onChange={(e) => setFormData({ ...formData, intro: e.target.value })}
+            rows={3}
+          />
+        )}
 
 
         <div className="flex items-center gap-3 pt-6">

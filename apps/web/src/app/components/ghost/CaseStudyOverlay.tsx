@@ -7,9 +7,10 @@ interface CaseStudyOverlayProps {
   post: GhostPost;
   currentIndex: number;
   totalCount: number;
-  onClose: () => void;
+  onClose?: () => void;
   onNext?: () => void;
   onPrevious?: () => void;
+  isStandalone?: boolean;
 }
 
 export function CaseStudyOverlay({
@@ -19,6 +20,7 @@ export function CaseStudyOverlay({
   onClose,
   onNext,
   onPrevious,
+  isStandalone = false,
 }: CaseStudyOverlayProps) {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [contentImages, setContentImages] = useState<string[]>([]);
@@ -35,7 +37,7 @@ export function CaseStudyOverlay({
       if (e.key === 'Escape') {
         if (fullscreenImage) {
           setFullscreenImage(null);
-        } else {
+        } else if (!isStandalone && onClose) {
           onClose();
         }
       }
@@ -62,14 +64,18 @@ export function CaseStudyOverlay({
     window.addEventListener('keydown', handleArrowKeys);
 
     // Prevent body scroll
-    document.body.style.overflow = 'hidden';
+    if (!isStandalone) {
+      document.body.style.overflow = 'hidden';
+    }
 
     return () => {
       window.removeEventListener('keydown', handleEscape);
       window.removeEventListener('keydown', handleArrowKeys);
-      document.body.style.overflow = '';
+      if (!isStandalone) {
+        document.body.style.overflow = '';
+      }
     };
-  }, [onClose, onNext, onPrevious, fullscreenImage, contentImages]);
+  }, [onClose, onNext, onPrevious, fullscreenImage, contentImages, isStandalone]);
 
   const handlePrevFullscreenImage = () => {
     if (!fullscreenImage || contentImages.length <= 1) return;
@@ -98,13 +104,13 @@ export function CaseStudyOverlay({
   return (
     <>
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        initial={isStandalone ? {} : { opacity: 0 }}
+        animate={isStandalone ? {} : { opacity: 1 }}
+        exit={isStandalone ? {} : { opacity: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-0 z-[1000] bg-[var(--bg-primary)] overflow-y-auto"
+        className={isStandalone ? "w-full bg-[var(--bg-primary)] relative" : "fixed inset-0 z-[1000] bg-[var(--bg-primary)] overflow-y-auto"}
         onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
+          if (!isStandalone && e.target === e.currentTarget && onClose) onClose();
         }}
       >
         <motion.div
@@ -115,17 +121,21 @@ export function CaseStudyOverlay({
           className="min-h-screen py-12 md:py-20 px-6 md:px-20"
         >
           {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="fixed top-6 right-6 md:top-10 md:right-10 z-[1001] w-12 h-12 rounded-full bg-[rgba(255,255,255,0.08)] border border-[var(--border-medium)] backdrop-blur-md flex items-center justify-center transition-all duration-[var(--duration-fast)] hover:bg-[rgba(255,255,255,0.15)] hover:border-[var(--border-active)] group"
-          >
-            <X className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]" />
-          </button>
+          {!isStandalone && onClose && (
+            <button
+              onClick={onClose}
+              className="fixed top-6 right-6 md:top-10 md:right-10 z-[1001] w-12 h-12 rounded-full bg-[rgba(255,255,255,0.08)] border border-[var(--border-medium)] backdrop-blur-md flex items-center justify-center transition-all duration-[var(--duration-fast)] hover:bg-[rgba(255,255,255,0.15)] hover:border-[var(--border-active)] group"
+            >
+              <X className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]" />
+            </button>
+          )}
 
           {/* Progress Indicator */}
-          <div className="fixed top-6 md:top-10 left-1/2 -translate-x-1/2 z-[1001] text-[11px] font-mono uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
-            {currentIndex + 1} of {totalCount}
-          </div>
+          {!isStandalone && (
+            <div className="fixed top-6 md:top-10 left-1/2 -translate-x-1/2 z-[1001] text-[11px] font-mono uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+              {currentIndex + 1} of {totalCount}
+            </div>
+          )}
 
           {/* Content Container */}
           <div className="max-w-[1000px] mx-auto">

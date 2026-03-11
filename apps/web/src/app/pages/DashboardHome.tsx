@@ -215,11 +215,6 @@ export default function DashboardHome() {
                           >
                             {collection.title}
                           </div>
-                          {(collection.hasPassword) && (
-                            <span title="Password protected" className="text-[var(--text-tertiary)] mt-1">
-                              <Plus className="w-3.5 h-3.5 rotate-45" />
-                            </span>
-                          )}
                         </div>
                         <p className="text-[13px] text-[var(--text-secondary)] line-clamp-2 leading-relaxed h-[40px]">
                           {collection.intro || "No description provided."}
@@ -300,11 +295,6 @@ export default function DashboardHome() {
                           <span className="text-[16px] font-medium text-[var(--text-primary)] group-hover:text-white transition-colors">
                             {collection.title}
                           </span>
-                          {collection.hasPassword && (
-                            <span title="Password protected" className="text-[var(--text-tertiary)]">
-                              <Plus className="w-3 h-3 rotate-45" />
-                            </span>
-                          )}
                         </div>
                         <span className="text-[13px] text-[var(--text-secondary)] line-clamp-1 max-w-md">
                           {collection.intro || "No description provided."}

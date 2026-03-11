@@ -268,7 +268,6 @@ export default function EditCollection() {
     title: '',
     slug: '',
     intro: '',
-    password: '',
     heroItemId: '',
   });
 
@@ -285,7 +284,6 @@ export default function EditCollection() {
           title: collection.title,
           slug: collection.slug,
           intro: collection.intro,
-          password: '',
           heroItemId: heroId,
         });
       })
@@ -347,7 +345,6 @@ export default function EditCollection() {
         title: formData.title,
         slug: formData.slug,
         intro: formData.intro,
-        password: formData.password || undefined,
         heroItemId: formData.heroItemId || null,
       });
       await refreshCollections();
@@ -507,20 +504,14 @@ export default function EditCollection() {
                 className="font-mono"
               />
 
-              <Textarea
-                label="Intro"
-                value={formData.intro}
-                onChange={(e) => setFormData({ ...formData, intro: e.target.value })}
-                rows={3}
-              />
-
-              <Input
-                label="Password (Optional)"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                helperText="Leave empty to keep the current password (if any)"
-              />
+              {itemPosts.length > 1 && (
+                <Textarea
+                  label="Intro"
+                  value={formData.intro}
+                  onChange={(e) => setFormData({ ...formData, intro: e.target.value })}
+                  rows={3}
+                />
+              )}
             </form>
           </div>
 

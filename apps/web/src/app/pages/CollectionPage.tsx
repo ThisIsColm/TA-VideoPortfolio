@@ -18,30 +18,25 @@ export default function CollectionPage() {
   const [error, setError] = useState('');
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
-  const [passwordInput, setPasswordInput] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [collectionPassword, setCollectionPassword] = useState<string | undefined>(undefined);
 
   // Fetch collection
   useEffect(() => {
     if (!slug) return;
     setLoading(true);
-    api.fetchPublicCollection(slug, collectionPassword)
+    api.fetchPublicCollection(slug)
       .then(({ collection }) => {
         setCollection(collection);
         setError('');
       })
       .catch((err) => {
-        if (err.status === 403) {
-          setPasswordError('Incorrect password');
-        } else if (err.status === 404) {
+        if (err.status === 404) {
           setError('not-found');
         } else {
           setError('error');
         }
       })
       .finally(() => setLoading(false));
-  }, [slug, collectionPassword]);
+  }, [slug]);
 
   // Deep link: auto-open overlay for postSlug OR if single video
   useEffect(() => {
@@ -99,49 +94,20 @@ export default function CollectionPage() {
     );
   }
 
-  // Password prompt
-  if (collection?.requiresPassword) {
-    const handlePasswordSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      setPasswordError('');
-      setCollectionPassword(passwordInput);
-    };
-
-    return (
-      <div className="min-h-screen flex items-center justify-center px-6">
-        <div className="w-full max-w-md">
-          <div className="flex items-center justify-center mb-12">
-            <Lock className="w-6 h-6 text-[var(--text-tertiary)]" />
-          </div>
-          <h1 className="text-[32px] leading-[40px] font-light text-[var(--text-primary)] text-center mb-4 tracking-tight">
-            {collection.title}
-          </h1>
-          <p className="text-[15px] leading-[24px] text-[var(--text-secondary)] text-center mb-12">
-            This collection is password protected
-          </p>
-          <form onSubmit={handlePasswordSubmit} className="space-y-6">
-            <Input
-              type="password"
-              placeholder="Enter password"
-              value={passwordInput}
-              onChange={(e) => setPasswordInput(e.target.value)}
-              autoFocus
-            />
-            {passwordError && (
-              <p className="text-[13px] text-red-400">{passwordError}</p>
-            )}
-            <Button type="submit" className="w-full">
-              Unlock Collection
-            </Button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   if (!collection || !collection.posts) return null;
 
   const posts = collection.posts;
+
+  if (posts.length === 1) {
+    return (
+      <CaseStudyOverlay
+        post={posts[0]}
+        currentIndex={0}
+        totalCount={1}
+        isStandalone={true}
+      />
+    );
+  }
 
   let heroPost = posts[0];
   let heroIndex = 0;
