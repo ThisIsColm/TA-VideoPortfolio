@@ -113,7 +113,4 @@ node_modules/
 *.db
 *.sqlite
 *.sqlite3
-/apps/api/database.sqlite
-
-apps/api/database.sqlite3-shm
-apps/api/database.sqlite3-wal
+/apps/api/database.sqlite3*
