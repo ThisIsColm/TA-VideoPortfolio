@@ -137,27 +137,64 @@ export function CaseStudyOverlay({
             </div>
           )}
 
-          {/* Content Container */}
-          <div className="max-w-[1000px] mx-auto">
-            {/* Title Section */}
-            <div className="mb-8 md:mb-12">
-              <h1 className="text-[24px] md:text-[40px] leading-[32px] md:leading-[48px] font-light text-[var(--text-primary)] mb-4 tracking-tight">
-                {post.title}
-              </h1>
-              <div className="flex gap-6 text-[11px] font-mono uppercase tracking-[0.08em] text-[var(--text-tertiary)] mb-6 md:mb-8">
-                {post.year && <span>{post.year}</span>}
-                {post.client && <span>{post.client}</span>}
-                {post.category && <span>{post.category}</span>}
+          {/* Header Image Section */}
+          <div className="w-full max-w-[1400px] mx-auto mb-12 md:mb-20">
+            <div className="relative w-full aspect-[21/9] md:aspect-[2.35/1] bg-[var(--bg-tertiary)] rounded-[var(--radius-lg)] overflow-hidden shadow-[var(--shadow-medium)] group">
+              {/* Background Image */}
+              {post.thumbnail && (
+                <img
+                  src={post.thumbnail}
+                  alt={post.title}
+                  className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-[10s] ease-out"
+                />
+              )}
+
+              {/* Film Grain Overlay */}
+              <div
+                className="absolute inset-0 z-[5] pointer-events-none opacity-[0.15] mix-blend-overlay"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                }}
+              ></div>
+
+              {/* Gradient Overlay for Text Readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-[6]"></div>
+
+              {/* Logo Layer */}
+              <div className="absolute top-6 left-8 md:top-10 md:left-16 z-20">
+                <img
+                  src="/Tiny_Ark_Logo_White.png"
+                  alt="Tiny Ark Logo"
+                  className="h-5 md:h-8 w-auto object-contain"
+                />
               </div>
 
-              {/* Description / excerpt (moved above video) */}
-              {post.description && (
-                <p className="text-[18px] md:text-[20px] leading-[1.6] text-[var(--text-secondary)] font-light italic max-w-[800px]">
-                  {post.description}
-                </p>
-              )}
-            </div>
+              {/* Title Section Content inside Image */}
+              <div className="absolute bottom-0 left-0 p-8 md:p-16 w-full z-10 flex flex-col justify-end h-full">
+                <div className="max-w-[1000px]">
+                  <h1 className="text-[32px] md:text-[56px] leading-[1.1] font-medium text-white mb-4 tracking-tight drop-shadow-lg">
+                    {post.title}
+                  </h1>
 
+                  <div className="flex gap-4 md:gap-6 text-[11px] font-mono uppercase tracking-[0.08em] text-white/80 mb-6 drop-shadow-sm">
+                    {post.year && <span>{post.year}</span>}
+                    {post.client && <span>{post.client}</span>}
+                    {post.category && <span>{post.category}</span>}
+                  </div>
+
+                  {/* Description / excerpt (moved inside header) */}
+                  {post.description && (
+                    <p className="text-[16px] md:text-[20px] leading-[1.5] text-white/90 font-light max-w-[800px] drop-shadow-md">
+                      {post.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Container */}
+          <div className="max-w-[1000px] mx-auto">
             {/* Video Section */}
             {post.vimeoId && (
               <div className="mb-12 md:mb-20 rounded-[var(--radius-md)] overflow-hidden bg-black">
