@@ -4,7 +4,7 @@ set -Eeuo pipefail
 APP_DIR="/root/TA-Portfolio"
 APP_NAME="ta-portfolio"
 BRANCH="main"
-DB_PATH="$APP_DIR/apps/api/dev.db"
+DB_PATH="$APP_DIR/apps/api/database.sqlite3"
 BACKUP_DIR="$APP_DIR/backups"
 
 echo "==> Starting deploy"
