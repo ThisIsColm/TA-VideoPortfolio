@@ -132,7 +132,7 @@ export function CaseStudyOverlay({
 
           {/* Header Image Section */}
           <div className="w-full max-w-[1240px] mx-auto mb-0">
-            <div className="relative w-full aspect-[21/9] md:aspect-[2.35/1] bg-[var(--bg-tertiary)] rounded-[var(--radius-lg)] overflow-hidden group">
+            <div className="relative w-full aspect-[3/4] md:aspect-[2.35/1] bg-[var(--bg-tertiary)] rounded-[var(--radius-lg)] overflow-hidden group">
               {/* Background Image */}
               {post.thumbnail && (
                 <img
@@ -156,7 +156,7 @@ export function CaseStudyOverlay({
               <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
               {/* Logo Layer */}
-              <div className="absolute top-6 left-8 md:top-10 md:left-16 z-20">
+              <div className="absolute top-6 left-6 md:top-10 md:left-16 z-20">
                 <img
                   src="/Tiny_Ark_Logo_White.png"
                   alt="Tiny Ark Logo"
@@ -165,9 +165,9 @@ export function CaseStudyOverlay({
               </div>
 
               {/* Title Section Content inside Image */}
-              <div className="absolute bottom-0 left-0 p-8 md:p-16 w-full max-w-3xl z-10 flex flex-col justify-end h-full">
+              <div className="absolute bottom-0 left-0 p-6 md:p-16 w-full max-w-3xl z-10 flex flex-col justify-end h-full">
                 <div className="max-w-[1000px]">
-                  <h1 className="text-[40px] md:text-[64px] leading-[1.1] font-medium text-[var(--accent-primary)] mb-6 tracking-tight drop-shadow-lg">
+                  <h1 className="text-[32px] md:text-[64px] leading-[1.1] font-medium text-[var(--accent-primary)] mb-6 tracking-tight drop-shadow-lg">
                     {post.title}
                   </h1>
 
@@ -179,7 +179,7 @@ export function CaseStudyOverlay({
 
                   {/* Description / excerpt (moved inside header) */}
                   {post.description && (
-                    <p className="text-[16px] md:text-[20px] leading-[1.6] text-[var(--text-primary)] mb-8 max-w-[600px] drop-shadow-md">
+                    <p className="text-[15px] md:text-[20px] leading-[1.6] text-[var(--text-primary)] mb-6 md:mb-8 max-w-[600px] drop-shadow-md">
                       {post.description}
                     </p>
                   )}

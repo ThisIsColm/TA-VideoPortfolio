@@ -164,7 +164,7 @@ export default function CollectionPage() {
         {/* Hero Section Container */}
         <div className="cinematic-container relative">
           {collection.posts.length > 0 && heroPost && (
-            <div className="relative w-full aspect-[21/9] md:aspect-[2.35/1] bg-[var(--bg-tertiary)] rounded-[var(--radius-lg)] overflow-hidden shadow-[var(--shadow-medium)] group">
+            <div className="relative w-full aspect-[3/4] md:aspect-[2.35/1] bg-[var(--bg-tertiary)] rounded-[var(--radius-lg)] overflow-hidden shadow-[var(--shadow-medium)] group">
               {/* Background Image (Chosen hero video thumbnail) */}
               <img
                 src={heroPost.thumbnail}
@@ -196,14 +196,14 @@ export default function CollectionPage() {
 
 
               {/* Title and Controls Content */}
-              <div className="absolute bottom-0 left-0 p-8 md:p-16 w-full max-w-3xl z-10">
-                <h1 className="text-[40px] md:text-[64px] leading-[1.1] font-medium text-[var(--accent-primary)] mb-6 tracking-tight drop-shadow-lg">
+              <div className="absolute bottom-0 left-0 p-6 md:p-16 w-full max-w-3xl z-10">
+                <h1 className="text-[32px] md:text-[64px] leading-[1.1] font-medium text-[var(--accent-primary)] mb-6 tracking-tight drop-shadow-lg">
                   {collection.title}
                 </h1>
 
                 {/* Decorative / Placeholder lines (from screenshot) or intro text */}
                 {collection.intro ? (
-                  <p className="text-[16px] md:text-[20px] leading-[1.6] text-[var(--text-primary)] mb-8 max-w-[600px] drop-shadow-md">
+                  <p className="text-[15px] md:text-[20px] leading-[1.6] text-[var(--text-primary)] mb-6 md:mb-8 max-w-[600px] drop-shadow-md">
                     {collection.intro}
                   </p>
                 ) : (
