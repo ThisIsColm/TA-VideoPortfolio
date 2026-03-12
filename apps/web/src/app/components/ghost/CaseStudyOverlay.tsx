@@ -124,7 +124,7 @@ export function CaseStudyOverlay({
           {!isStandalone && onClose && (
             <button
               onClick={onClose}
-              className="fixed top-6 right-6 md:top-10 md:right-10 z-[1001] w-12 h-12 rounded-full bg-[rgba(255,255,255,0.08)] border border-[var(--border-medium)] backdrop-blur-md flex items-center justify-center transition-all duration-[var(--duration-fast)] hover:bg-[rgba(255,255,255,0.15)] hover:border-[var(--border-active)] group"
+              className="fixed top-6 right-6 md:top-10 md:right-10 z-[1001] w-12 h-12 rounded-full bg-[rgba(255,255,255,0.08)] border border-[var(--border-medium)] backdrop-blur-md hidden md:flex items-center justify-center transition-all duration-[var(--duration-fast)] hover:bg-[rgba(255,255,255,0.15)] hover:border-[var(--border-active)] group"
             >
               <X className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]" />
             </button>
@@ -235,7 +235,7 @@ export function CaseStudyOverlay({
       {onPrevious && (
         <button
           onClick={onPrevious}
-          className="fixed top-1/2 left-6 md:left-10 -translate-y-1/2 z-[1001] w-12 h-12 rounded-full bg-[rgba(255,255,255,0.08)] border border-[var(--border-medium)] flex items-center justify-center transition-all duration-[var(--duration-fast)] hover:bg-[rgba(255,255,255,0.15)] hover:border-[var(--border-active)] group"
+          className="fixed top-1/2 left-6 md:left-10 -translate-y-1/2 z-[1001] w-12 h-12 rounded-full bg-[rgba(255,255,255,0.08)] border border-[var(--border-medium)] hidden md:flex items-center justify-center transition-all duration-[var(--duration-fast)] hover:bg-[rgba(255,255,255,0.15)] hover:border-[var(--border-active)] group"
         >
           <ChevronLeft className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]" />
         </button>
@@ -244,7 +244,7 @@ export function CaseStudyOverlay({
       {onNext && (
         <button
           onClick={onNext}
-          className="fixed top-1/2 right-6 md:right-10 -translate-y-1/2 z-[1001] w-12 h-12 rounded-full bg-[rgba(255,255,255,0.08)] border border-[var(--border-medium)] flex items-center justify-center transition-all duration-[var(--duration-fast)] hover:bg-[rgba(255,255,255,0.15)] hover:border-[var(--border-active)] group"
+          className="fixed top-1/2 right-6 md:right-10 -translate-y-1/2 z-[1001] w-12 h-12 rounded-full bg-[rgba(255,255,255,0.08)] border border-[var(--border-medium)] hidden md:flex items-center justify-center transition-all duration-[var(--duration-fast)] hover:bg-[rgba(255,255,255,0.15)] hover:border-[var(--border-active)] group"
         >
           <ChevronRight className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]" />
         </button>

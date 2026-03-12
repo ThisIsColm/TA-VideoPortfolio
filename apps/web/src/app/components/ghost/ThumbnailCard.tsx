@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { GhostPost } from '../../lib/api';
 import { Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useIsMobile } from '../ui/use-mobile';
 
 interface ThumbnailCardProps {
   post: GhostPost;
@@ -11,6 +12,7 @@ interface ThumbnailCardProps {
 
 export function ThumbnailCard({ post, onClick, index = 0 }: ThumbnailCardProps) {
   const [isHovering, setIsHovering] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <motion.div
@@ -22,8 +24,8 @@ export function ThumbnailCard({ post, onClick, index = 0 }: ThumbnailCardProps) 
         ease: [0.16, 1, 0.3, 1]
       }}
       onClick={onClick}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      onMouseEnter={() => !isMobile && setIsHovering(true)}
+      onMouseLeave={() => !isMobile && setIsHovering(false)}
       className="group relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--bg-secondary)] border border-[var(--border-subtle)] cursor-pointer shadow-[var(--shadow-subtle)] hover:shadow-[var(--shadow-medium)] hover:border-[var(--border-active)] transition-colors duration-[var(--duration-base)]"
     >
       {/* Thumbnail */}
@@ -37,7 +39,7 @@ export function ThumbnailCard({ post, onClick, index = 0 }: ThumbnailCardProps) 
 
         {/* Hover Video Preview (Always rendered but hidden unless hovering to ensure instant playback) */}
         <AnimatePresence>
-          {post.vimeoId && (
+          {post.vimeoId && !isMobile && (
             <motion.div
               initial={false}
               animate={{ opacity: isHovering ? 1 : 0 }}
