@@ -3,9 +3,9 @@
 :root {
   /* Backgrounds */
   --bg-base: #000000;
-  --bg-primary: #050505;
-  --bg-secondary: #0A0A0A;
-  --bg-tertiary: #121212;
+  --bg-primary: #000000;
+  --bg-secondary: #000000;
+  --bg-tertiary: #000000;
   --bg-overlay: rgba(0, 0, 0, 0.85);
 
   /* Borders */
@@ -196,7 +196,7 @@ body {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
-  border-radius: var(--radius-lg) !important;
+  border-radius: 0 !important;
   box-shadow: var(--shadow-medium) !important;
   margin: 0 !important;
 }

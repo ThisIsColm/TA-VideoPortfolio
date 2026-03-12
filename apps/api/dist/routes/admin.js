@@ -34,11 +34,13 @@ router.get('/collections', async (req, res) => {
                     thumbnailMap[p.slug] = p.thumbnail;
             });
         }
-        // Map thumbnails back to collections
+        // Map thumbnails and firstPostSlug back to collections
         for (const c of collections) {
-            c.thumbnails = collectionSlugMap[c.id]
+            const slugs = collectionSlugMap[c.id];
+            c.thumbnails = slugs
                 .map(slug => thumbnailMap[slug])
                 .filter(Boolean);
+            c.firstPostSlug = slugs.length > 0 ? slugs[0] : null;
         }
         res.json({ collections });
     }

@@ -183,7 +183,7 @@ export default function CollectionPage() {
               {/* Gradient Overlay for Text Readability */}
               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
               {/* Bottom Gradient for smoother title blending if needed */}
-              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
               {/* Logo Layer */}
               <div className="absolute top-6 left-8 md:top-10 md:left-16 z-20">

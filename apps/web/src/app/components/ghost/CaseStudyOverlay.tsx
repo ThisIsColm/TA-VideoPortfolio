@@ -118,7 +118,7 @@ export function CaseStudyOverlay({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="min-h-screen py-12 md:py-20 px-6 md:px-20"
+          className="min-h-screen pt-4 md:pt-8 pb-12 md:pb-20 px-6 md:px-20"
         >
           {/* Close Button */}
           {!isStandalone && onClose && (
@@ -130,16 +130,9 @@ export function CaseStudyOverlay({
             </button>
           )}
 
-          {/* Progress Indicator */}
-          {!isStandalone && (
-            <div className="fixed top-6 md:top-10 left-1/2 -translate-x-1/2 z-[1001] text-[11px] font-mono uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
-              {currentIndex + 1} of {totalCount}
-            </div>
-          )}
-
           {/* Header Image Section */}
-          <div className="w-full max-w-[1400px] mx-auto mb-12 md:mb-20">
-            <div className="relative w-full aspect-[21/9] md:aspect-[2.35/1] bg-[var(--bg-tertiary)] rounded-[var(--radius-lg)] overflow-hidden shadow-[var(--shadow-medium)] group">
+          <div className="w-full max-w-[1240px] mx-auto mb-0">
+            <div className="relative w-full aspect-[21/9] md:aspect-[2.35/1] bg-[var(--bg-tertiary)] rounded-[var(--radius-lg)] overflow-hidden group">
               {/* Background Image */}
               {post.thumbnail && (
                 <img
@@ -158,7 +151,9 @@ export function CaseStudyOverlay({
               ></div>
 
               {/* Gradient Overlay for Text Readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-[6]"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+              {/* Bottom Gradient for smoothly blending into black background */}
+              <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
               {/* Logo Layer */}
               <div className="absolute top-6 left-8 md:top-10 md:left-16 z-20">
@@ -170,9 +165,9 @@ export function CaseStudyOverlay({
               </div>
 
               {/* Title Section Content inside Image */}
-              <div className="absolute bottom-0 left-0 p-8 md:p-16 w-full z-10 flex flex-col justify-end h-full">
+              <div className="absolute bottom-0 left-0 p-8 md:p-16 w-full max-w-3xl z-10 flex flex-col justify-end h-full">
                 <div className="max-w-[1000px]">
-                  <h1 className="text-[32px] md:text-[56px] leading-[1.1] font-medium text-white mb-4 tracking-tight drop-shadow-lg">
+                  <h1 className="text-[40px] md:text-[64px] leading-[1.1] font-medium text-[var(--accent-primary)] mb-6 tracking-tight drop-shadow-lg">
                     {post.title}
                   </h1>
 
@@ -184,7 +179,7 @@ export function CaseStudyOverlay({
 
                   {/* Description / excerpt (moved inside header) */}
                   {post.description && (
-                    <p className="text-[16px] md:text-[20px] leading-[1.5] text-white/90 font-light max-w-[800px] drop-shadow-md">
+                    <p className="text-[16px] md:text-[20px] leading-[1.6] text-[var(--text-primary)] mb-8 max-w-[600px] drop-shadow-md">
                       {post.description}
                     </p>
                   )}
@@ -193,11 +188,10 @@ export function CaseStudyOverlay({
             </div>
           </div>
 
-          {/* Content Container */}
-          <div className="max-w-[1000px] mx-auto">
-            {/* Video Section */}
+          {/* Video Section Container (matches text content width) */}
+          <div className="max-w-[1000px] mx-auto w-full mt-2 md:mt-2 relative z-20">
             {post.vimeoId && (
-              <div className="mb-12 md:mb-20 rounded-[var(--radius-md)] overflow-hidden bg-black">
+              <div className="mb-12 overflow-hidden bg-black">
                 <div
                   className="relative w-full"
                   style={{
@@ -215,7 +209,10 @@ export function CaseStudyOverlay({
                 </div>
               </div>
             )}
+          </div>
 
+          {/* Content Container (body text) */}
+          <div className="max-w-[1000px] mx-auto">
             {/* Body Content */}
             <div className="w-full mx-auto mb-16 md:mb-24">
               {/* Full Ghost HTML body */}
@@ -347,7 +344,7 @@ export function CaseStudyOverlay({
           display: flex !important;
           flex-direction: column !important;
           gap: 1rem !important;
-          margin: 1.5rem 0 !important;
+          margin: 1.7rem 0 !important;
           width: 100% !important;
         }
         .ghost-content .kg-gallery-container {
@@ -376,11 +373,22 @@ export function CaseStudyOverlay({
           margin: 0 !important;
         }
         
+        /* Standardized margins for top-level media blocks (1.7rem to match gallery gaps) */
+        .ghost-content > img,
+        .ghost-content > figure:not(.kg-gallery-card),
+        .ghost-content .kg-card:not(.kg-gallery-card) {
+          margin: 1.7rem 0;
+        }
+
+        /* Figure children shouldn't inherit the card margin */
+        .ghost-content figure {
+          margin: 0;
+        }
+
         .ghost-content > img,
         .ghost-content figure > img,
-        .ghost-content .kg-card:not(.kg-gallery-card) img {
-          border-radius: var(--radius-lg);
-          margin: 1.5rem 0;
+        .ghost-content .kg-card img {
+          border-radius: 0;
           box-shadow: var(--shadow-medium);
           width: 100%;
           cursor: zoom-in;
@@ -415,7 +423,7 @@ export function CaseStudyOverlay({
         }
         
         .ghost-content p {
-          margin-bottom: 1.5rem;
+          margin-bottom: 3rem;
         }
         
         .ghost-content blockquote {
@@ -438,7 +446,7 @@ export function CaseStudyOverlay({
         }
 
         .ghost-content figure {
-          margin: 1.5rem 0;
+          /* Figures are handled by the top-level block margin above */
         }
         .ghost-content figcaption {
           font-size: var(--text-sm);
