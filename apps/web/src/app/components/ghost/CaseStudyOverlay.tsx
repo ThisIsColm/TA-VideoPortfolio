@@ -43,6 +43,24 @@ export function CaseStudyOverlay({
           container.remove();
         }
       }
+
+      // Apply correct aspect ratios to all remaining vimeo iframes
+      const remainingIframes = doc.querySelectorAll('iframe[src*="vimeo"]');
+      remainingIframes.forEach(iframe => {
+        const src = iframe.getAttribute('src');
+        const idMatch = src?.match(/\/video\/(\d+)/);
+        if (idMatch) {
+          const id = idMatch[1];
+          const videoMeta = post.vimeoVideos?.find(v => v.id === id);
+          if (videoMeta?.width && videoMeta?.height) {
+            (iframe as HTMLElement).style.aspectRatio = `${videoMeta.width} / ${videoMeta.height}`;
+            (iframe as HTMLElement).style.height = 'auto';
+          } else {
+            // Fallback to 16/9 if metadata is missing
+            (iframe as HTMLElement).style.aspectRatio = '16 / 9';
+          }
+        }
+      });
       
       setProcessedHtml(doc.body.innerHTML);
     } else {
@@ -351,16 +369,21 @@ export function CaseStudyOverlay({
           font-weight: 300;
         }
 
-        /* Essential for allowing subsequent Vimeo embeds to show */
+        /* Essential for allowing subsequent Vimeo embeds to show and be full width */
+        .ghost-content iframe[src*="vimeo"] {
+          width: 100% !important;
+          height: auto !important;
+          border-radius: var(--radius-md);
+          margin: 2rem 0;
+          border: none;
+          display: block;
+        }
+
         .ghost-content .kg-embed-card {
           margin: 2rem 0;
           width: 100%;
-        }
-        
-        .ghost-content .kg-embed-card iframe {
-          width: 100%;
-          aspect-ratio: 16/9;
-          border-radius: var(--radius-md);
+          display: flex;
+          justify-content: center;
         }
 
         /* Ghost Gallery Support */

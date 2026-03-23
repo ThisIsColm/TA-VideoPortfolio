@@ -14,6 +14,12 @@ export interface GhostPostRaw {
     tags: Array<{ name: string; slug: string }>;
 }
 
+export interface VimeoVideo {
+    id: string;
+    width?: number;
+    height?: number;
+}
+
 export interface GhostPostTransformed {
     id: string;
     title: string;
@@ -21,6 +27,7 @@ export interface GhostPostTransformed {
     thumbnail: string;
     vimeoId: string | null;
     vimeoIds: string[]; // Support for multiple videos
+    vimeoVideos: VimeoVideo[]; // Metadata for all videos
     tags: string[];
     year: string;
     client: string | null;
@@ -127,13 +134,21 @@ export async function transformPost(post: GhostPostRaw): Promise<GhostPostTransf
 
     let description = post.custom_excerpt || post.excerpt || post.plaintext || '';
 
+    // Fetch metadata for all videos in parallel
+    const vimeoVideos: VimeoVideo[] = await Promise.all(
+        vimeoIds.map(async (id) => {
+            const meta = await fetchVimeoMetadata(id);
+            return { id, ...meta };
+        })
+    );
+
     let vimeoWidth: number | undefined;
     let vimeoHeight: number | undefined;
 
     if (vimeoId) {
-        const meta = await fetchVimeoMetadata(vimeoId);
-        vimeoWidth = meta.width;
-        vimeoHeight = meta.height;
+        const heroVideo = vimeoVideos.find(v => v.id === vimeoId);
+        vimeoWidth = heroVideo?.width;
+        vimeoHeight = heroVideo?.height;
     }
 
     return {
@@ -143,6 +158,7 @@ export async function transformPost(post: GhostPostRaw): Promise<GhostPostTransf
         thumbnail: post.feature_image || '',
         vimeoId,
         vimeoIds,
+        vimeoVideos,
         tags,
         year,
         client: null,

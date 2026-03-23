@@ -30,6 +30,11 @@ export class ApiError extends Error {
 
 // Auth functions removed per user request
 // ─── Ghost Posts ──────────────────────────────────────
+export interface VimeoVideo {
+    id: string;
+    width?: number;
+    height?: number;
+}
 
 export interface GhostPost {
     id: string;
@@ -38,6 +43,7 @@ export interface GhostPost {
     thumbnail: string;
     vimeoId: string | null;
     vimeoIds: string[]; // Added to match API
+    vimeoVideos: VimeoVideo[]; // Added to match API
     tags: string[];
     year: string;
     client: string | null;
