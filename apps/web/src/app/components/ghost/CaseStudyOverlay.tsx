@@ -23,15 +23,32 @@ export function CaseStudyOverlay({
   isStandalone = false,
 }: CaseStudyOverlayProps) {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [processedHtml, setProcessedHtml] = useState<string>(post.html || '');
   const [contentImages, setContentImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (post.html) {
       const doc = new DOMParser().parseFromString(post.html, 'text/html');
+      
+      // Extract images for fullscreen gallery
       const imgs = Array.from(doc.querySelectorAll('img')).map(img => img.src);
       setContentImages(imgs);
+
+      // Remove the first vimeo iframe if it's already shown in the hero section
+      if (post.vimeoId) {
+        const vimeoIframes = doc.querySelectorAll('iframe[src*="vimeo"]');
+        if (vimeoIframes.length > 0) {
+          const firstVimeo = vimeoIframes[0];
+          const container = firstVimeo.closest('.kg-card') || firstVimeo.closest('figure') || firstVimeo;
+          container.remove();
+        }
+      }
+      
+      setProcessedHtml(doc.body.innerHTML);
+    } else {
+      setProcessedHtml('');
     }
-  }, [post.html]);
+  }, [post.html, post.vimeoId]);
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -216,10 +233,10 @@ export function CaseStudyOverlay({
             {/* Body Content */}
             <div className="w-full mx-auto mb-16 md:mb-24">
               {/* Full Ghost HTML body */}
-              {post.html && (
+              {processedHtml && (
                 <div
                   className="ghost-content text-[15px] leading-[24px] text-[var(--text-secondary)]"
-                  dangerouslySetInnerHTML={{ __html: post.html }}
+                  dangerouslySetInnerHTML={{ __html: processedHtml }}
                   onClick={handleContentClick}
                 />
               )}
@@ -334,9 +351,16 @@ export function CaseStudyOverlay({
           font-weight: 300;
         }
 
-        /* Remove secondary Vimeo embeds from text */
-        .ghost-content iframe[src*="vimeo"] {
-          display: none !important;
+        /* Essential for allowing subsequent Vimeo embeds to show */
+        .ghost-content .kg-embed-card {
+          margin: 2rem 0;
+          width: 100%;
+        }
+        
+        .ghost-content .kg-embed-card iframe {
+          width: 100%;
+          aspect-ratio: 16/9;
+          border-radius: var(--radius-md);
         }
 
         /* Ghost Gallery Support */

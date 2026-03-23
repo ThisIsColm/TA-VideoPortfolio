@@ -37,6 +37,7 @@ export interface GhostPost {
     slug: string;
     thumbnail: string;
     vimeoId: string | null;
+    vimeoIds: string[]; // Added to match API
     tags: string[];
     year: string;
     client: string | null;

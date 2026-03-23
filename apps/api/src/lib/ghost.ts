@@ -20,6 +20,7 @@ export interface GhostPostTransformed {
     slug: string;
     thumbnail: string;
     vimeoId: string | null;
+    vimeoIds: string[]; // Support for multiple videos
     tags: string[];
     year: string;
     client: string | null;
@@ -44,13 +45,30 @@ function ghostUrl(path: string, params: Record<string, string> = {}): string {
     return url.toString();
 }
 
+export function extractVimeoIds(html: string | null): string[] {
+    if (!html) return [];
+    
+    const ids = new Set<string>();
+    
+    // Match iframe src: https://player.vimeo.com/video/123456789
+    const iframeMatches = html.matchAll(/src=["']https?:\/\/player\.vimeo\.com\/video\/(\d+)[^"']*["']/gi);
+    for (const match of iframeMatches) {
+        ids.add(match[1]);
+    }
+    
+    // Match raw links: https://vimeo.com/123456789
+    const urlMatches = html.matchAll(/https?:\/\/(?:www\.)?vimeo\.com\/(\d+)/gi);
+    for (const match of urlMatches) {
+        ids.add(match[1]);
+    }
+    
+    return Array.from(ids);
+}
+
+// Kept for backward compatibility or simple cases
 export function extractVimeoId(html: string | null): string | null {
-    if (!html) return null;
-    const iframeMatch = html.match(/src=["']https?:\/\/player\.vimeo\.com\/video\/(\d+)[^"']*["']/i);
-    if (iframeMatch) return iframeMatch[1];
-    const urlMatch = html.match(/https?:\/\/(?:www\.)?vimeo\.com\/(\d+)/i);
-    if (urlMatch) return urlMatch[1];
-    return null;
+    const ids = extractVimeoIds(html);
+    return ids.length > 0 ? ids[0] : null;
 }
 
 export function extractImages(html: string | null): string[] {
@@ -101,7 +119,8 @@ async function fetchVimeoMetadata(vimeoId: string): Promise<{ width?: number, he
 }
 
 export async function transformPost(post: GhostPostRaw): Promise<GhostPostTransformed> {
-    const vimeoId = extractVimeoId(post.html);
+    const vimeoIds = extractVimeoIds(post.html);
+    const vimeoId = vimeoIds.length > 0 ? vimeoIds[0] : null;
     const stills = extractImages(post.html);
     const year = post.published_at ? new Date(post.published_at).getFullYear().toString() : '';
     const tags = (post.tags || []).map(t => t.name);
@@ -123,6 +142,7 @@ export async function transformPost(post: GhostPostRaw): Promise<GhostPostTransf
         slug: post.slug,
         thumbnail: post.feature_image || '',
         vimeoId,
+        vimeoIds,
         tags,
         year,
         client: null,
