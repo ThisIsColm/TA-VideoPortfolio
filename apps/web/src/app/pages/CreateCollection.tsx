@@ -246,13 +246,16 @@ export default function CreateCollection() {
                   transition={{ delay: i * 0.05, type: 'spring', stiffness: 300, damping: 20 }}
                   className="relative group"
                 >
-                  <div className="w-12 h-12 rounded-full border-2 border-[var(--bg-primary)] overflow-hidden bg-[var(--bg-tertiary)] shadow-lg transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 group-hover:z-10 cursor-help">
+                  <div 
+                    onClick={() => togglePost(post)}
+                    className="w-12 h-12 rounded-full border-2 border-[var(--bg-primary)] overflow-hidden bg-[var(--bg-tertiary)] shadow-lg transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 group-hover:z-10 cursor-pointer"
+                  >
                     <img src={post.thumbnail} alt={post.title} className="w-full h-full object-cover" />
                   </div>
                   
                   {/* Tooltip */}
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-white text-black text-[11px] font-medium rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl">
-                    {post.title}
+                    Remove: {post.title}
                     <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white" />
                   </div>
                 </motion.div>
