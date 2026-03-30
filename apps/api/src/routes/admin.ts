@@ -253,4 +253,26 @@ router.patch('/collections/:id/items/reorder', (req: Request, res: Response) => 
     }
 });
 
+// DELETE /api/admin/collections/:id/items/:itemId
+router.delete('/collections/:id/items/:itemId', (req: Request, res: Response) => {
+    try {
+        const { id, itemId } = req.params;
+
+        // Optionally unset hero_item_id if this was the hero
+        db.prepare('UPDATE collections SET hero_item_id = NULL WHERE id = ? AND hero_item_id = ?').run(id, itemId);
+
+        const result = db.prepare('DELETE FROM collection_items WHERE id = ? AND collection_id = ?').run(itemId, id);
+
+        if (result.changes === 0) {
+            res.status(404).json({ error: 'Item not found in this collection' });
+            return;
+        }
+
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Delete item error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 export default router;
