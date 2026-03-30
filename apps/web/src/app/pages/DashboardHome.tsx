@@ -2,14 +2,15 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import { useApp } from '../lib/AppContext';
 import { Button } from '../components/ghost/Button';
-import { Plus, ExternalLink, Pencil, Trash2, Link2, LayoutGrid, List, Search, X } from 'lucide-react';
+import { Plus, ExternalLink, Pencil, Trash2, Link2, LayoutGrid, List, Search, X, Copy } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import * as api from '../lib/api';
 import { format } from 'date-fns';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 
 export default function DashboardHome() {
-  const { collections, collectionsLoading, deleteCollection } = useApp();
+  const { collections, collectionsLoading, deleteCollection, refreshCollections } = useApp();
   const navigate = useNavigate();
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
@@ -24,6 +25,16 @@ export default function DashboardHome() {
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Delete "${name}"? This cannot be undone.`)) {
       await deleteCollection(id);
+    }
+  };
+
+  const handleDuplicate = async (id: string, name: string) => {
+    try {
+      await api.duplicateCollection(id);
+      toast.success(`Duplicated "${name}"`);
+      await refreshCollections();
+    } catch (err) {
+      toast.error('Failed to duplicate portfolio');
     }
   };
 
@@ -248,14 +259,30 @@ export default function DashboardHome() {
 
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={() => navigate(`/dashboard/collections/${collection.id}/edit`)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDuplicate(collection.id, collection.title);
+                            }}
+                            className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-full transition-all"
+                            title="Duplicate"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/dashboard/collections/${collection.id}/edit`);
+                            }}
                             className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-full transition-all"
                             title="Edit"
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(collection.id, collection.title)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(collection.id, collection.title);
+                            }}
                             className="p-2 text-red-500 hover:bg-red-500/10 rounded-full transition-all"
                             title="Delete"
                           >
@@ -324,6 +351,16 @@ export default function DashboardHome() {
                       </button>
 
                       <div className="flex items-center gap-1 border-l border-[var(--border-subtle)] pl-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDuplicate(collection.id, collection.title);
+                          }}
+                          className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-full transition-all"
+                          title="Duplicate"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

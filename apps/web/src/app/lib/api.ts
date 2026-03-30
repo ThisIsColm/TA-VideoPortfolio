@@ -139,6 +139,12 @@ export async function createCollection(data: {
     });
 }
 
+export async function duplicateCollection(id: string) {
+    return request<{ collection: any }>(`/dashboard/collections/${id}/duplicate`, {
+        method: 'POST',
+    });
+}
+
 export async function updateCollection(id: string, data: {
     title?: string;
     slug?: string;

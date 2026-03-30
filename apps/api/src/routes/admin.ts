@@ -119,6 +119,61 @@ router.patch('/collections/:id', (req: Request, res: Response) => {
     }
 });
 
+// POST /api/admin/collections/:id/duplicate
+router.post('/collections/:id/duplicate', (req: Request, res: Response) => {
+    try {
+        const id = req.params.id;
+
+        const collection = db.prepare('SELECT * FROM collections WHERE id = ?').get(id) as any;
+        if (!collection) {
+            res.status(404).json({ error: 'Collection not found' });
+            return;
+        }
+
+        const newId = crypto.randomUUID();
+        const shortId = crypto.randomBytes(3).toString('hex');
+        const newTitle = `${collection.title} [COPY]`;
+        const newSlug = `${collection.slug}-copy-${shortId}`;
+
+        // Create the new collection
+        db.prepare('INSERT INTO collections (id, title, slug, intro) VALUES (?, ?, ?, ?)')
+            .run(newId, newTitle, newSlug, collection.intro || '');
+
+        // Copy items
+        const items = db.prepare('SELECT * FROM collection_items WHERE collection_id = ? ORDER BY sort_order ASC').all(id) as any[];
+        
+        let newHeroItemId: string | null = null;
+
+        const insertItemCmd = db.prepare(`
+            INSERT INTO collection_items (id, collection_id, ghost_post_id, ghost_slug, sort_order)
+            VALUES (?, ?, ?, ?, ?)
+        `);
+
+        db.transaction((itemsToCopy: any[]) => {
+            for (const item of itemsToCopy) {
+                const newItemId = crypto.randomUUID();
+                insertItemCmd.run(newItemId, newId, item.ghost_post_id, item.ghost_slug, item.sort_order);
+
+                if (collection.hero_item_id === item.id) {
+                    newHeroItemId = newItemId;
+                }
+            }
+        })(items);
+
+        // Update hero item if it was set
+        if (newHeroItemId) {
+            db.prepare('UPDATE collections SET hero_item_id = ? WHERE id = ?').run(newHeroItemId, newId);
+        }
+
+        const newCollection = db.prepare('SELECT * FROM collections WHERE id = ?').get(newId);
+        res.status(201).json({ collection: newCollection });
+    } catch (err: any) {
+        console.error('Duplicate collection error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
 // GET /api/admin/collections/:id
 router.get('/collections/:id', async (req: Request, res: Response) => {
     try {
