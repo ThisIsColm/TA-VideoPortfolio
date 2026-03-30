@@ -235,12 +235,40 @@ export default function CreateCollection() {
 
         {/* Floating Action Bar */}
         {selectedPostsMap.size > 0 && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[rgba(18,18,18,0.95)] backdrop-blur-2xl border border-[var(--border-medium)] rounded-lg px-6 py-4 shadow-[var(--shadow-overlay)]">
-            <div className="flex items-center gap-6">
-              <span className="text-[13px] text-[var(--text-secondary)]">
-                {selectedPostsMap.size} / 6 videos selected
-              </span>
-              <Button onClick={() => setStep('details')}>
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[rgba(18,18,18,0.95)] backdrop-blur-2xl border border-[var(--border-medium)] rounded-2xl px-6 py-4 shadow-[var(--shadow-overlay)] flex items-center gap-8 min-w-[320px]">
+            {/* Selected Thumbnails Preview */}
+            <div className="flex items-center -space-x-3 overflow-visible">
+              {Array.from(selectedPostsMap.values()).map((post, i) => (
+                <motion.div
+                  key={post.id}
+                  initial={{ scale: 0, x: -20 }}
+                  animate={{ scale: 1, x: 0 }}
+                  transition={{ delay: i * 0.05, type: 'spring', stiffness: 300, damping: 20 }}
+                  className="relative group"
+                >
+                  <div className="w-12 h-12 rounded-full border-2 border-[var(--bg-primary)] overflow-hidden bg-[var(--bg-tertiary)] shadow-lg transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 group-hover:z-10 cursor-help">
+                    <img src={post.thumbnail} alt={post.title} className="w-full h-full object-cover" />
+                  </div>
+                  
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-white text-black text-[11px] font-medium rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl">
+                    {post.title}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white" />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-6 border-l border-white/10 pl-8">
+              <div className="flex flex-col">
+                <span className="text-[13px] font-medium text-[var(--text-primary)]">
+                  {selectedPostsMap.size} Videos
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)] font-mono">
+                  {selectedPostsMap.size} / 6
+                </span>
+              </div>
+              <Button onClick={() => setStep('details')} className="!bg-white !text-black hover:opacity-90 min-w-[100px]">
                 Continue
               </Button>
             </div>
