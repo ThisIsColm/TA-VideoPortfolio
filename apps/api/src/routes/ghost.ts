@@ -1,7 +1,18 @@
 import { Router, Request, Response } from 'express';
-import { fetchGhostPosts, fetchGhostPost } from '../lib/ghost';
+import { fetchGhostPosts, fetchGhostPost, fetchGhostTags } from '../lib/ghost';
 
 const router = Router();
+
+// GET /api/ghost/tags
+router.get('/tags', async (req: Request, res: Response) => {
+    try {
+        const tags = await fetchGhostTags();
+        res.json({ tags });
+    } catch (err: any) {
+        console.error('Ghost tags error:', err);
+        res.status(502).json({ error: 'Failed to fetch tags from Ghost', message: err.message });
+    }
+});
 
 // GET /api/ghost/posts
 router.get('/posts', async (req: Request, res: Response) => {

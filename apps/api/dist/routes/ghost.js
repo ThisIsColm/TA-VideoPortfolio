@@ -3,6 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const ghost_1 = require("../lib/ghost");
 const router = (0, express_1.Router)();
+// GET /api/ghost/tags
+router.get('/tags', async (req, res) => {
+    try {
+        const tags = await (0, ghost_1.fetchGhostTags)();
+        res.json({ tags });
+    }
+    catch (err) {
+        console.error('Ghost tags error:', err);
+        res.status(502).json({ error: 'Failed to fetch tags from Ghost', message: err.message });
+    }
+});
 // GET /api/ghost/posts
 router.get('/posts', async (req, res) => {
     try {

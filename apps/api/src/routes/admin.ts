@@ -120,7 +120,7 @@ router.patch('/collections/:id', (req: Request, res: Response) => {
 });
 
 // GET /api/admin/collections/:id
-router.get('/collections/:id', (req: Request, res: Response) => {
+router.get('/collections/:id', async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
         const collection = db.prepare('SELECT * FROM collections WHERE id = ?').get(id) as any;
@@ -141,10 +141,20 @@ router.get('/collections/:id', (req: Request, res: Response) => {
             createdAt: i.created_at,
         }));
 
+        let postsMap: Record<string, any> = {};
+        if (items.length > 0) {
+            const slugs = items.map(i => i.ghostSlug);
+            const { posts } = await fetchGhostPosts(1, slugs.length, '', '', slugs);
+            posts.forEach(p => postsMap[p.slug] = p);
+        }
+
         res.json({
             collection: {
                 ...collection,
-                items
+                items: items.map(i => ({
+                    ...i,
+                    post: postsMap[i.ghostSlug] || null
+                }))
             }
         });
     } catch (err) {

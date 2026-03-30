@@ -54,21 +54,21 @@ function ghostUrl(path: string, params: Record<string, string> = {}): string {
 
 export function extractVimeoIds(html: string | null): string[] {
     if (!html) return [];
-    
+
     const ids = new Set<string>();
-    
+
     // Match iframe src: https://player.vimeo.com/video/123456789
     const iframeMatches = html.matchAll(/src=["']https?:\/\/player\.vimeo\.com\/video\/(\d+)[^"']*["']/gi);
     for (const match of iframeMatches) {
         ids.add(match[1]);
     }
-    
+
     // Match raw links: https://vimeo.com/123456789
     const urlMatches = html.matchAll(/https?:\/\/(?:www\.)?vimeo\.com\/(\d+)/gi);
     for (const match of urlMatches) {
         ids.add(match[1]);
     }
-    
+
     return Array.from(ids);
 }
 
@@ -179,20 +179,11 @@ export async function fetchGhostPosts(page = 1, limit = 50, search = '', tag = '
         return { posts: [], meta: { page: 1, pages: 0, total: 0 } };
     }
 
-    let filters: string[] = [];
-    if (tag) {
-        filters.push(`tag:${tag}`);
-    }
-    if (slugs.length > 0) {
-        filters.push(`slug:[${slugs.join(',')}]`);
-    }
-
+    // Always fetch ALL posts lightweightly to implement reliable server-side full-text search and filtering manually.
     const url = ghostUrl('posts/', {
         include: 'tags',
-        limit: String(limit),
-        page: String(page),
+        limit: 'all',
         fields: 'id,title,slug,feature_image,custom_excerpt,excerpt,plaintext,html,published_at',
-        filter: filters.join('+'),
     });
 
     const res = await fetch(url);
@@ -203,19 +194,45 @@ export async function fetchGhostPosts(page = 1, limit = 50, search = '', tag = '
     const data = await res.json();
     let postsRaw = data.posts as GhostPostRaw[];
 
-    // Basic client-side search since Ghost API doesn't support full-text search out of the box easily
+    if (tag) {
+        const tLower = tag.toLowerCase();
+        postsRaw = postsRaw.filter(p => (p.tags || []).some(t => t.name.toLowerCase() === tLower));
+    }
+
+    if (slugs.length > 0) {
+        postsRaw = postsRaw.filter(p => slugs.includes(p.slug));
+    }
+
     if (search) {
         const s = search.toLowerCase();
         postsRaw = postsRaw.filter(p =>
             p.title.toLowerCase().includes(s) ||
-            (p.custom_excerpt || '').toLowerCase().includes(s)
+            (p.custom_excerpt || '').toLowerCase().includes(s) ||
+            (p.tags || []).some(t => t.name.toLowerCase().includes(s))
         );
     }
 
-    const posts = await Promise.all(postsRaw.map(transformPost));
-    const meta = data.meta?.pagination || { page: 1, pages: 0, total: 0 };
+    const total = postsRaw.length;
+    const pages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    
+    // Only fetch Vimeo metadata for the current page
+    const paginatedRaw = postsRaw.slice(start, end);
+    const posts = await Promise.all(paginatedRaw.map(transformPost));
 
-    return { posts, meta: { page: meta.page, pages: meta.pages, total: meta.total } };
+    return { posts, meta: { page, pages, total } };
+}
+
+export async function fetchGhostTags(): Promise<string[]> {
+    if (!process.env.GHOST_API_URL || !process.env.GHOST_CONTENT_KEY) {
+        return [];
+    }
+    const url = ghostUrl('tags/', { limit: 'all' });
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.tags || []).map((t: any) => t.name);
 }
 
 export async function fetchGhostPost(slug: string): Promise<GhostPostTransformed | null> {

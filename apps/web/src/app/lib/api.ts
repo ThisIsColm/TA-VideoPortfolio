@@ -55,11 +55,18 @@ export interface GhostPost {
     vimeoHeight?: number;
 }
 
-export async function fetchGhostPosts(page = 1, limit = 50) {
+export async function fetchGhostPosts(page = 1, limit = 50, search = '', tag = '') {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (search) params.append('search', search);
+    if (tag) params.append('tag', tag);
     return request<{
         posts: GhostPost[];
         meta: { page: number; pages: number; total: number };
-    }>(`/ghost/posts?page=${page}&limit=${limit}`);
+    }>(`/ghost/posts?${params.toString()}`);
+}
+
+export async function fetchGhostTags() {
+    return request<{ tags: string[] }>('/ghost/tags');
 }
 
 export async function fetchGhostPostBySlug(slug: string) {
@@ -97,6 +104,7 @@ export interface CollectionItem {
     ghostPostId: string;
     ghostSlug: string;
     sortOrder: number;
+    post?: GhostPost;
 }
 
 export async function fetchCollections(): Promise<{ collections: CollectionSummary[] }> {

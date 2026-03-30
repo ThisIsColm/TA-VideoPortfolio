@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useApp } from '../lib/AppContext';
 import { Button } from '../components/ghost/Button';
@@ -10,7 +10,7 @@ import * as api from '../lib/api';
 
 export default function CreateCollection() {
   const navigate = useNavigate();
-  const { ghostPosts, postsLoading, searchPosts, filterPostsByTag, refreshCollections } = useApp();
+  const { refreshCollections } = useApp();
 
   // Wizard State
   const [step, setStep] = useState<'select-videos' | 'details'>('select-videos');
@@ -19,7 +19,7 @@ export default function CreateCollection() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedPostIds, setSelectedPostIds] = useState<Set<string>>(new Set());
+  const [selectedPostsMap, setSelectedPostsMap] = useState<Map<string, api.GhostPost>>(new Map());
 
   // Form State
   const [saving, setSaving] = useState(false);
@@ -30,26 +30,46 @@ export default function CreateCollection() {
     intro: '',
   });
 
-  const allTags = Array.from(new Set(ghostPosts.flatMap(p => p.tags)));
+  // Data State
+  const [posts, setPosts] = useState<api.GhostPost[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [allTags, setAllTags] = useState<string[]>([]);
 
-  const filteredPosts = searchQuery
-    ? searchPosts(searchQuery)
-    : selectedTag
-      ? filterPostsByTag(selectedTag)
-      : ghostPosts;
+  useEffect(() => {
+    api.fetchGhostTags().then(res => setAllTags(res.tags)).catch(console.error);
+  }, []);
 
-  const togglePost = (id: string) => {
-    setSelectedPostIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
+  useEffect(() => {
+    let active = true;
+    setPostsLoading(true);
+    api.fetchGhostPosts(page, 20, searchQuery, selectedTag).then(res => {
+      if (!active) return;
+      if (page === 1) {
+        setPosts(res.posts);
       } else {
-        if (next.size >= 6) {
-          // You might want to import toast here if it's available, 
-          // but for now I'll just prevent the addition.
-          return prev;
-        }
-        next.add(id);
+        setPosts(prev => [...prev, ...res.posts]);
+      }
+      setHasMore(res.meta.page < res.meta.pages);
+      setPostsLoading(false);
+    }).catch(err => {
+      console.error(err);
+      if (active) setPostsLoading(false);
+    });
+    return () => { active = false; };
+  }, [page, searchQuery, selectedTag]);
+
+  useEffect(() => { setPage(1); }, [searchQuery, selectedTag]);
+
+  const togglePost = (post: api.GhostPost) => {
+    setSelectedPostsMap(prev => {
+      const next = new Map(prev);
+      if (next.has(post.id)) {
+        next.delete(post.id);
+      } else {
+        if (next.size >= 6) return prev;
+        next.set(post.id, post);
       }
       return next;
     });
@@ -77,7 +97,7 @@ export default function CreateCollection() {
       });
 
       // 2. Add Selected Videos
-      const selectedPostsData = ghostPosts.filter(p => selectedPostIds.has(p.id));
+      const selectedPostsData = Array.from(selectedPostsMap.values());
       let firstItemId: string | null = null;
       for (const [index, post] of selectedPostsData.entries()) {
         try {
@@ -165,30 +185,30 @@ export default function CreateCollection() {
         </div>
 
         {/* Posts Area */}
-        {postsLoading ? (
+        {postsLoading && page === 1 ? (
           <div className="p-6 md:p-12 lg:p-16">
             <div className="text-[15px] text-[var(--text-secondary)]">Loading posts...</div>
           </div>
-        ) : ghostPosts.length === 0 ? (
+        ) : posts.length === 0 ? (
           <div className="p-6 md:p-12 lg:p-16 text-center py-20">
             <p className="text-[15px] text-[var(--text-secondary)] mb-4">No posts found.</p>
           </div>
         ) : (
           <div className="p-6 md:p-12 lg:p-16">
             <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6' : 'space-y-4'}>
-              {filteredPosts.map((post, index) => (
+              {posts.map((post, index) => (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.05, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ delay: (index % 20) * 0.05, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   key={post.id}
-                  onClick={() => togglePost(post.id)}
-                  className={`relative bg-[var(--bg-secondary)] border rounded-[var(--radius-lg)] overflow-hidden transition-all duration-[var(--duration-fast)] cursor-pointer shadow-[var(--shadow-subtle)] hover:shadow-[var(--shadow-medium)] ${selectedPostIds.has(post.id) ? 'border-white/40 ring-1 ring-white/20' : 'border-[var(--border-subtle)] hover:border-[var(--border-active)]'} ${viewMode === 'list' ? 'flex gap-4' : ''}`}
+                  onClick={() => togglePost(post)}
+                  className={`relative bg-[var(--bg-secondary)] border rounded-[var(--radius-lg)] overflow-hidden transition-all duration-[var(--duration-fast)] cursor-pointer shadow-[var(--shadow-subtle)] hover:shadow-[var(--shadow-medium)] ${selectedPostsMap.has(post.id) ? 'border-white/40 ring-1 ring-white/20' : 'border-[var(--border-subtle)] hover:border-[var(--border-active)]'} ${viewMode === 'list' ? 'flex gap-4' : ''}`}
                 >
                   <div className="absolute top-3 left-3 z-10" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
-                      checked={selectedPostIds.has(post.id)}
-                      onCheckedChange={() => togglePost(post.id)}
+                      checked={selectedPostsMap.has(post.id)}
+                      onCheckedChange={() => togglePost(post)}
                       className="w-5 h-5 bg-black/60 border-white/30 backdrop-blur-md data-[state=checked]:bg-white data-[state=checked]:text-black"
                     />
                   </div>
@@ -202,15 +222,23 @@ export default function CreateCollection() {
                 </motion.div>
               ))}
             </div>
+            
+            {hasMore && (
+              <div className="mt-12 flex justify-center">
+                <Button variant="secondary" onClick={() => setPage(p => p + 1)} disabled={postsLoading}>
+                  {postsLoading ? 'Loading...' : 'Load More'}
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
         {/* Floating Action Bar */}
-        {selectedPostIds.size > 0 && (
+        {selectedPostsMap.size > 0 && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[rgba(18,18,18,0.95)] backdrop-blur-2xl border border-[var(--border-medium)] rounded-lg px-6 py-4 shadow-[var(--shadow-overlay)]">
             <div className="flex items-center gap-6">
               <span className="text-[13px] text-[var(--text-secondary)]">
-                {selectedPostIds.size} / 6 videos selected
+                {selectedPostsMap.size} / 6 videos selected
               </span>
               <Button onClick={() => setStep('details')}>
                 Continue
@@ -234,7 +262,7 @@ export default function CreateCollection() {
           Step 2: Collection Details
         </h1>
         <p className="text-[15px] text-[var(--text-secondary)] mt-2">
-          {selectedPostIds.size} video{selectedPostIds.size !== 1 ? 's' : ''} selected
+          {selectedPostsMap.size} video{selectedPostsMap.size !== 1 ? 's' : ''} selected
         </p>
       </div>
 
@@ -263,7 +291,7 @@ export default function CreateCollection() {
           className="font-mono"
         />
 
-        {selectedPostIds.size > 1 && (
+        {selectedPostsMap.size > 1 && (
           <Textarea
             label="Intro"
             helperText="Optional introductory text for the collection page."
@@ -276,7 +304,7 @@ export default function CreateCollection() {
 
 
         <div className="flex items-center gap-3 pt-6">
-          <Button type="submit" disabled={saving || selectedPostIds.size === 0}>
+          <Button type="submit" disabled={saving || selectedPostsMap.size === 0}>
             {saving ? 'Creating...' : 'Create Collection'}
           </Button>
           <Button type="button" variant="secondary" onClick={() => navigate('/dashboard')}>

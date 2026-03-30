@@ -117,26 +117,44 @@ function DraggableVideoRow({ post, item, index, moveRow, onRemove, isHero, onSet
 interface AddVideosModalProps {
   collectionId: string;
   existingPostIds: Set<string>;
-  ghostPosts: GhostPost[];
   onAdd: (post: GhostPost) => void;
   onClose: () => void;
 }
 
-function AddVideosModal({ collectionId, existingPostIds, ghostPosts, onAdd, onClose }: AddVideosModalProps) {
+function AddVideosModal({ collectionId, existingPostIds, onAdd, onClose }: AddVideosModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [addingId, setAddingId] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  const [posts, setPosts] = useState<GhostPost[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     searchRef.current?.focus();
   }, []);
 
-  const filteredPosts = searchQuery
-    ? ghostPosts.filter(p =>
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
-    )
-    : ghostPosts;
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    api.fetchGhostPosts(page, 20, searchQuery).then(res => {
+      if (!active) return;
+      if (page === 1) {
+        setPosts(res.posts);
+      } else {
+        setPosts(prev => [...prev, ...res.posts]);
+      }
+      setHasMore(res.meta.page < res.meta.pages);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
+  }, [searchQuery, page]);
+
+  useEffect(() => { setPage(1); }, [searchQuery]);
 
   const handleAdd = async (post: GhostPost) => {
     if (existingPostIds.has(post.id)) return;
@@ -201,12 +219,12 @@ function AddVideosModal({ collectionId, existingPostIds, ghostPosts, onAdd, onCl
 
         {/* Video List */}
         <div className="overflow-y-auto flex-1">
-          {filteredPosts.length === 0 ? (
+          {posts.length === 0 && !loading ? (
             <div className="p-8 text-center">
               <p className="text-[13px] text-[var(--text-secondary)]">No videos found</p>
             </div>
           ) : (
-            filteredPosts.map((post) => {
+            posts.map((post) => {
               const isAdded = existingPostIds.has(post.id);
               const isAdding = addingId === post.id;
 
@@ -246,6 +264,13 @@ function AddVideosModal({ collectionId, existingPostIds, ghostPosts, onAdd, onCl
               );
             })
           )}
+          {hasMore && (
+            <div className="p-4 flex justify-center border-t border-[var(--border-subtle)]">
+              <Button variant="secondary" onClick={() => setPage(p => p + 1)} disabled={loading}>
+                {loading ? 'Loading...' : 'Load More'}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -256,7 +281,7 @@ function AddVideosModal({ collectionId, existingPostIds, ghostPosts, onAdd, onCl
 export default function EditCollection() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { refreshCollections, ghostPosts } = useApp();
+  const { refreshCollections } = useApp();
 
   const [collection, setCollection] = useState<CollectionDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -291,12 +316,9 @@ export default function EditCollection() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Map items to posts
+  // Map items to posts (now post is returned in the API item)
   const itemPosts = collection
-    ? collection.items.map(item => {
-      const post = ghostPosts.find(p => p.id === item.ghostPostId || p.slug === item.ghostSlug);
-      return { item, post };
-    }).filter((x): x is { item: api.CollectionItem; post: GhostPost } => !!x.post)
+    ? collection.items.map(item => ({ item, post: item.post })).filter((x): x is { item: api.CollectionItem; post: GhostPost } => !!x.post)
     : [];
 
   const existingPostIds = new Set(itemPosts.map(ip => ip.post.id));
@@ -573,7 +595,6 @@ export default function EditCollection() {
         <AddVideosModal
           collectionId={collection.id}
           existingPostIds={existingPostIds}
-          ghostPosts={ghostPosts}
           onAdd={handleAddVideo}
           onClose={() => setShowAddModal(false)}
         />

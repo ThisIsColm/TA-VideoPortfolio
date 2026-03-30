@@ -13,12 +13,19 @@ export interface GhostPostRaw {
         slug: string;
     }>;
 }
+export interface VimeoVideo {
+    id: string;
+    width?: number;
+    height?: number;
+}
 export interface GhostPostTransformed {
     id: string;
     title: string;
     slug: string;
     thumbnail: string;
     vimeoId: string | null;
+    vimeoIds: string[];
+    vimeoVideos: VimeoVideo[];
     tags: string[];
     year: string;
     client: string | null;
@@ -29,6 +36,7 @@ export interface GhostPostTransformed {
     vimeoWidth?: number;
     vimeoHeight?: number;
 }
+export declare function extractVimeoIds(html: string | null): string[];
 export declare function extractVimeoId(html: string | null): string | null;
 export declare function extractImages(html: string | null): string[];
 export declare function sanitizeGhostHtml(html: string): string;
@@ -41,4 +49,5 @@ export declare function fetchGhostPosts(page?: number, limit?: number, search?: 
         total: number;
     };
 }>;
+export declare function fetchGhostTags(): Promise<string[]>;
 export declare function fetchGhostPost(slug: string): Promise<GhostPostTransformed | null>;
