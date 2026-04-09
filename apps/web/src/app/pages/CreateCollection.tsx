@@ -68,7 +68,7 @@ export default function CreateCollection() {
       if (next.has(post.id)) {
         next.delete(post.id);
       } else {
-        if (next.size >= 6) return prev;
+        if (next.size >= 9) return prev;
         next.set(post.id, post);
       }
       return next;
@@ -136,7 +136,7 @@ export default function CreateCollection() {
               Step 1: Select Videos
             </h1>
             <span className="text-[12px] font-mono uppercase tracking-wider text-[var(--text-tertiary)] bg-[var(--bg-secondary)] px-2 py-1 rounded border border-[var(--border-subtle)]">
-              Max 6 videos
+              Max 9 videos
             </span>
           </div>
 
@@ -268,7 +268,7 @@ export default function CreateCollection() {
                   {selectedPostsMap.size} Videos
                 </span>
                 <span className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)] font-mono">
-                  {selectedPostsMap.size} / 6
+                  {selectedPostsMap.size} / 9
                 </span>
               </div>
               <Button onClick={() => setStep('details')} className="!bg-white !text-black hover:opacity-90 min-w-[100px]">

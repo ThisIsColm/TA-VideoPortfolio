@@ -158,8 +158,8 @@ function AddVideosModal({ collectionId, existingPostIds, onAdd, onClose }: AddVi
 
   const handleAdd = async (post: GhostPost) => {
     if (existingPostIds.has(post.id)) return;
-    if (existingPostIds.size >= 6) {
-      toast.error('Limit reached (max 6 videos)');
+    if (existingPostIds.size >= 9) {
+      toast.error('Limit reached (max 9 videos)');
       return;
     }
     setAddingId(post.id);
@@ -191,7 +191,7 @@ function AddVideosModal({ collectionId, existingPostIds, onAdd, onClose }: AddVi
           <div>
             <h2 className="text-[15px] font-medium text-[var(--text-primary)]">Add Videos</h2>
             <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">
-              Click a video to add it ({existingPostIds.size} / 6 used)
+              Click a video to add it ({existingPostIds.size} / 9 used)
             </p>
           </div>
           <button
@@ -433,8 +433,8 @@ export default function EditCollection() {
 
   const handleAddVideo = (post: GhostPost) => {
     if (!collection) return;
-    if (collection.items.length >= 6) {
-      toast.error('Limit reached (max 6 videos)');
+    if (collection.items.length >= 9) {
+      toast.error('Limit reached (max 9 videos)');
       return;
     }
     const newItem: api.CollectionItem = {
@@ -546,11 +546,11 @@ export default function EditCollection() {
               <Button
                 variant="secondary"
                 onClick={() => setShowAddModal(true)}
-                disabled={itemPosts.length >= 6}
-                title={itemPosts.length >= 6 ? "Limit of 6 videos reached" : ""}
+                disabled={itemPosts.length >= 9}
+                title={itemPosts.length >= 9 ? "Limit of 9 videos reached" : ""}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Videos {itemPosts.length >= 6 && '(Full)'}
+                Add Videos {itemPosts.length >= 9 && '(Full)'}
               </Button>
             </div>
 
